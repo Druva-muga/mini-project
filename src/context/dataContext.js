@@ -10,12 +10,15 @@ export const DataProvider = ({children}) => {
   const [correctAnswer, setCorrectAnswer] = useState('');
   const [selectedAnswer, setSelectedAnswer] = useState('');
   const [marks, setMarks] = useState(0);
+  const [counter,setCounter] = useState(0);
+  const [showAnswerTimer,setShowAnswerTimer] = useState(true);
+
 
   // Display Controlling States
   const [showStart, setShowStart] = useState(true);
+  const [showRules, setShowRules] = useState(false);
   const [showQuiz, setShowQuiz] = useState(false);
   const [showResult, setShowResult] = useState(false);
-
   // Load JSON Data
   useEffect(() => {
     fetch('quiz.json')
@@ -32,12 +35,34 @@ export const DataProvider = ({children}) => {
 
   // Start Quiz
   const startQuiz = () => {
-    setShowStart(false);
+    setCounter(0);
+    setShowRules(false);
     setShowQuiz(true);
   }
 
+
+  //Show rules
+  const dispRules = () => {
+    setShowStart(false);
+    setShowRules(true);
+  }
+
+  //quit quiz
+  const quitQuiz = () => {
+    setShowStart(true);
+    setShowResult(false);
+    setCounter(0);
+    setShowAnswerTimer(false);
+    setShowQuiz(false);
+    setCorrectAnswer('');
+    setSelectedAnswer('');
+    setQuestionIndex(0);
+    setMarks(0);
+  }
+  
   // Check Answer
   const checkAnswer = (event, selected) => {
+
     if (!selectedAnswer) {
       setCorrectAnswer(question.answer);
       setSelectedAnswer(selected);
@@ -53,6 +78,8 @@ export const DataProvider = ({children}) => {
 
   // Next Quesion
   const nextQuestion = () => {
+    setCounter(0);
+    setShowAnswerTimer(false);
     setCorrectAnswer('');
     setSelectedAnswer('');
     const wrongBtn = document.querySelector('button.bg-danger');
@@ -60,6 +87,9 @@ export const DataProvider = ({children}) => {
     const rightBtn = document.querySelector('button.bg-success');
     rightBtn?.classList.remove('bg-success');
     setQuestionIndex(questionIndex + 1);
+    setTimeout(() => {
+      setShowAnswerTimer(true);
+    });
   }
 
   // Show Result
@@ -71,6 +101,8 @@ export const DataProvider = ({children}) => {
 
   // Start Over
   const startOver = () => {
+    setCounter(0);
+    setShowAnswerTimer(false);
     setShowStart(false);
     setShowResult(false);
     setShowQuiz(true);
@@ -82,10 +114,13 @@ export const DataProvider = ({children}) => {
     wrongBtn?.classList.remove('bg-danger');
     const rightBtn = document.querySelector('button.bg-success');
     rightBtn?.classList.remove('bg-success');
+    setTimeout(() => {
+      setShowAnswerTimer(true);
+    });
   }
     return (
-        <DataContext.Provider value={{
-            startQuiz,showStart,showQuiz,question,quizs,checkAnswer,correctAnswer,
+        <DataContext.Provider value={{quitQuiz,
+            startQuiz,dispRules,setCounter,showAnswerTimer,setShowAnswerTimer,counter,showRules,showStart,showQuiz,question,quizs,checkAnswer,correctAnswer,
             selectedAnswer,questionIndex,nextQuestion,showTheResult,showResult,marks,
             startOver
         }} >
